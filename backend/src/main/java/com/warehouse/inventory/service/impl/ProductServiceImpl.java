@@ -36,24 +36,24 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse createProduct(CreateProductRequest request) {
-        log.info("Creating new product with SKU: {}", request.getSku());
+        log.info("Creating new product with SKU: {}", request.sku());
 
-        if (productRepository.existsBySku(request.getSku())) {
-            throw new DuplicateResourceException("Product with SKU '" + request.getSku() + "' already exists");
+        if (productRepository.existsBySku(request.sku())) {
+            throw new DuplicateResourceException("Product with SKU '" + request.sku() + "' already exists");
         }
 
-        Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
-                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with ID: " + request.getWarehouseId()));
+        Warehouse warehouse = warehouseRepository.findById(request.warehouseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with ID: " + request.warehouseId()));
 
         Product product = Product.builder()
-                .sku(request.getSku())
-                .name(request.getName())
-                .description(request.getDescription())
-                .quantity(request.getQuantity() != null ? request.getQuantity() : 0)
+                .sku(request.sku())
+                .name(request.name())
+                .description(request.description())
+                .quantity(request.quantity() != null ? request.quantity() : 0)
                 .reservedQuantity(0)
-                .price(request.getPrice())
-                .unit(request.getUnit() != null ? request.getUnit() : "pcs")
-                .minStockLevel(request.getMinStockLevel() != null ? request.getMinStockLevel() : 0)
+                .price(request.price())
+                .unit(request.unit() != null ? request.unit() : "pcs")
+                .minStockLevel(request.minStockLevel() != null ? request.minStockLevel() : 0)
                 .active(true)
                 .warehouse(warehouse)
                 .build();
@@ -152,24 +152,24 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
 
         // Check if new SKU conflicts with another product
-        if (!product.getSku().equals(request.getSku()) &&
-            productRepository.existsBySku(request.getSku())) {
-            throw new DuplicateResourceException("Product with SKU '" + request.getSku() + "' already exists");
+        if (!product.getSku().equals(request.sku()) &&
+            productRepository.existsBySku(request.sku())) {
+            throw new DuplicateResourceException("Product with SKU '" + request.sku() + "' already exists");
         }
 
         // Verify warehouse exists if it's being changed
-        if (!product.getWarehouse().getId().equals(request.getWarehouseId())) {
-            Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with ID: " + request.getWarehouseId()));
+        if (!product.getWarehouse().getId().equals(request.warehouseId())) {
+            Warehouse warehouse = warehouseRepository.findById(request.warehouseId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with ID: " + request.warehouseId()));
             product.setWarehouse(warehouse);
         }
 
-        product.setSku(request.getSku());
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setUnit(request.getUnit() != null ? request.getUnit() : "pcs");
-        product.setMinStockLevel(request.getMinStockLevel() != null ? request.getMinStockLevel() : 0);
+        product.setSku(request.sku());
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
+        product.setUnit(request.unit() != null ? request.unit() : "pcs");
+        product.setMinStockLevel(request.minStockLevel() != null ? request.minStockLevel() : 0);
 
         // Note: quantity is not updated here - use transactions to update inventory
 

@@ -197,12 +197,13 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponse createInboundTransaction(Long productId, int quantity, String notes, String reference) {
         log.info("Creating inbound transaction for product {} with quantity: {}", productId, quantity);
 
-        CreateTransactionRequest request = new CreateTransactionRequest();
-        request.setProductId(productId);
-        request.setType(TransactionType.INBOUND);
-        request.setQuantity(quantity);
-        request.setNotes(notes);
-        request.setReference(reference);
+        CreateTransactionRequest request = new CreateTransactionRequest(
+                TransactionType.INBOUND,
+                quantity,
+                notes,
+                reference,
+                productId
+        );
 
         return createTransaction(request);
     }
@@ -211,12 +212,13 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponse createOutboundTransaction(Long productId, int quantity, String notes, String reference) {
         log.info("Creating outbound transaction for product {} with quantity: {}", productId, quantity);
 
-        CreateTransactionRequest request = new CreateTransactionRequest();
-        request.setProductId(productId);
-        request.setType(TransactionType.OUTBOUND);
-        request.setQuantity(quantity);
-        request.setNotes(notes);
-        request.setReference(reference);
+        CreateTransactionRequest request = new CreateTransactionRequest(
+                TransactionType.OUTBOUND,
+                quantity,
+                notes,
+                reference,
+                productId
+        );
 
         return createTransaction(request);
     }
@@ -225,12 +227,13 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponse createAdjustmentTransaction(Long productId, int quantityChange, String notes, String reference) {
         log.info("Creating adjustment transaction for product {} with quantity change: {}", productId, quantityChange);
 
-        CreateTransactionRequest request = new CreateTransactionRequest();
-        request.setProductId(productId);
-        request.setType(TransactionType.ADJUSTMENT);
-        request.setQuantity(quantityChange);
-        request.setNotes(notes);
-        request.setReference(reference);
+        CreateTransactionRequest request = new CreateTransactionRequest(
+                TransactionType.ADJUSTMENT,
+                quantityChange,
+                notes,
+                reference,
+                productId
+        );
 
         return createTransaction(request);
     }

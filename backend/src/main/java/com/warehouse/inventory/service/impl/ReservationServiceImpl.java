@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -93,7 +92,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         return reservationRepository.findAll().stream()
                 .map(ReservationResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -107,7 +106,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         return reservationRepository.findByProductId(productId).stream()
                 .map(ReservationResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -121,7 +120,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         return reservationRepository.findByProductIdAndStatus(productId, status).stream()
                 .map(ReservationResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -131,7 +130,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         return reservationRepository.findByStatus(status).stream()
                 .map(ReservationResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -143,7 +142,7 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.findByStatus(ReservationStatus.ACTIVE).stream()
                 .filter(r -> r.getExpiresAt().isAfter(now))
                 .map(ReservationResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -157,7 +156,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         return reservationRepository.findActiveReservationsByProduct(productId, LocalDateTime.now()).stream()
                 .map(ReservationResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -171,7 +170,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         return reservationRepository.findActiveReservationsByWarehouse(warehouseId).stream()
                 .map(ReservationResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -181,7 +180,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         return reservationRepository.findExpiredReservations(LocalDateTime.now()).stream()
                 .map(ReservationResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

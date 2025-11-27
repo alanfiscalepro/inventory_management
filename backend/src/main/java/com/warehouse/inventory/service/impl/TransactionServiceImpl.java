@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -123,7 +122,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         return transactionRepository.findAll().stream()
                 .map(TransactionResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -137,7 +136,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         return transactionRepository.findByProductId(productId).stream()
                 .map(TransactionResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -151,7 +150,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         return transactionRepository.findByProductIdOrderByCreatedAtDesc(productId).stream()
                 .map(TransactionResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -161,7 +160,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         return transactionRepository.findByType(type).stream()
                 .map(TransactionResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -176,7 +175,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         return transactionRepository.findByProductIdAndDateRange(productId, startDate, endDate).stream()
                 .map(TransactionResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -190,7 +189,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         return transactionRepository.findByWarehouseId(warehouseId).stream()
                 .map(TransactionResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

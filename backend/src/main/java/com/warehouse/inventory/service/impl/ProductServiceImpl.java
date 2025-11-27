@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -93,7 +92,7 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.findAll().stream()
                 .map(ProductResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -103,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.findByActiveTrue().stream()
                 .map(ProductResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -117,7 +116,7 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.findByWarehouseId(warehouseId).stream()
                 .map(ProductResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -131,7 +130,7 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.findActiveProductsByWarehouse(warehouseId).stream()
                 .map(ProductResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -141,7 +140,7 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.findLowStockProducts().stream()
                 .map(ProductResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

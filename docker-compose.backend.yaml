@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        EXTERNAL_PORT: '${EXTERNAL_PORT:-8080}'
+        INTERNAL_PORT: '${INTERNAL_PORT:-8080}'
+    container_name: inventory-manager-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: '${SPRING_PROFILES_ACTIVE:-prod}'
+
+      # Database Configuration
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/${DB_NAME:-inventory_db}'
+      SPRING_DATASOURCE_USERNAME: '${DB_USER:-postgres}'
+      SPRING_DATASOURCE_PASSWORD: '${DB_PASSWORD}'
+
+      # JPA/Hibernate Configuration
+      SPRING_JPA_HIBERNATE_DDL_AUTO: '${JPA_DDL_AUTO:-update}'
+      SPRING_JPA_SHOW_SQL: '${JPA_SHOW_SQL:-false}'
+
+      # Server Configuration
+      SERVER_PORT: '${INTERNAL_PORT:-8080}'
+
+      # Java Options
+      JAVA_OPTS: '${JAVA_OPTS:--Xms512m -Xmx1024m}'
+
+      # Timezone
+      TZ: '${TZ:-UTC}'
+
+      # JWT Configuration
+      JWT_SECRET: '${JWT_SECRET}'
+      JWT_EXPIRATION: '${JWT_EXPIRATION:-86400000}'
+      JWT_REFRESH_EXPIRATION: '${JWT_REFRESH_EXPIRATION:-604800000}'
+
+      # CORS Configuration
+      CORS_ALLOWED_ORIGINS: '${CORS_ALLOWED_ORIGINS:-http://localhost:3000,https://your-frontend-domain.com}'
+
+      # HikariCP Connection Pool
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: '${HIKARI_MAX_POOL_SIZE:-20}'
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: '${HIKARI_MIN_IDLE:-5}'
+      SPRING_DATASOURCE_HIKARI_IDLE_TIMEOUT: '${HIKARI_IDLE_TIMEOUT:-300000}'
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: '${HIKARI_CONNECTION_TIMEOUT:-30000}'
+      SPRING_DATASOURCE_HIKARI_MAX_LIFETIME: '${HIKARI_MAX_LIFETIME:-1800000}'
+
+      # Logging Configuration
+      LOGGING_LEVEL_ROOT: '${LOGGING_LEVEL_ROOT:-INFO}'
+      LOGGING_LEVEL_COM_WAREHOUSE: '${LOGGING_LEVEL_APP:-INFO}'
+
+      # File Upload Configuration
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: '${FILE_UPLOAD_MAX_SIZE:-10MB}'
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: '${FILE_UPLOAD_MAX_REQUEST_SIZE:-20MB}'
+
+    volumes:
+      - app_logs:/app/logs
+
+    ports:
+      - '${EXTERNAL_PORT:-8080}:${INTERNAL_PORT:-8080}'
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${INTERNAL_PORT:-8080}/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+    networks:
+      - inventory-network
+
+networks:
+  inventory-network:
+    driver: bridge
+
+volumes:
+  app_logs:
+    driver: local

@@ -24,16 +24,16 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public WarehouseResponse createWarehouse(CreateWarehouseRequest request) {
-        log.info("Creating new warehouse with name: {}", request.getName());
+        log.info("Creating new warehouse with name: {}", request.name());
 
-        if (warehouseRepository.existsByName(request.getName())) {
-            throw new DuplicateResourceException("Warehouse with name '" + request.getName() + "' already exists");
+        if (warehouseRepository.existsByName(request.name())) {
+            throw new DuplicateResourceException("Warehouse with name '" + request.name() + "' already exists");
         }
 
         Warehouse warehouse = Warehouse.builder()
-                .name(request.getName())
-                .location(request.getLocation())
-                .description(request.getDescription())
+                .name(request.name())
+                .location(request.location())
+                .description(request.description())
                 .active(true)
                 .build();
 
@@ -93,14 +93,14 @@ public class WarehouseServiceImpl implements WarehouseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with ID: " + id));
 
         // Check if new name conflicts with another warehouse
-        if (!warehouse.getName().equals(request.getName()) &&
-            warehouseRepository.existsByName(request.getName())) {
-            throw new DuplicateResourceException("Warehouse with name '" + request.getName() + "' already exists");
+        if (!warehouse.getName().equals(request.name()) &&
+            warehouseRepository.existsByName(request.name())) {
+            throw new DuplicateResourceException("Warehouse with name '" + request.name() + "' already exists");
         }
 
-        warehouse.setName(request.getName());
-        warehouse.setLocation(request.getLocation());
-        warehouse.setDescription(request.getDescription());
+        warehouse.setName(request.name());
+        warehouse.setLocation(request.location());
+        warehouse.setDescription(request.description());
 
         Warehouse updatedWarehouse = warehouseRepository.save(warehouse);
         log.info("Successfully updated warehouse with ID: {}", id);

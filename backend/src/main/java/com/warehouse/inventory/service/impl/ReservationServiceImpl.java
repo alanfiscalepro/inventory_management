@@ -34,42 +34,42 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationResponse createReservation(CreateReservationRequest request) {
-        log.info("Creating reservation for product ID: {} with quantity: {}", request.getProductId(), request.getQuantity());
+        log.info("Creating reservation for product ID: {} with quantity: {}", request.productId(), request.quantity());
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + request.getProductId()));
+        Product product = productRepository.findById(request.productId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + request.productId()));
 
         // Check if sufficient stock is available
         int availableQuantity = product.getAvailableQuantity();
-        if (availableQuantity < request.getQuantity()) {
+        if (availableQuantity < request.quantity()) {
             throw new InsufficientStockException(
                     String.format("Insufficient stock for reservation. Product '%s' (SKU: %s) has only %d units available, but %d requested",
-                            product.getName(), product.getSku(), availableQuantity, request.getQuantity()));
+                            product.getName(), product.getSku(), availableQuantity, request.quantity()));
         }
 
         // Validate expiration date
-        if (request.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (request.expiresAt().isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Expiration date must be in the future");
         }
 
         // Create reservation
         Reservation reservation = Reservation.builder()
-                .quantity(request.getQuantity())
+                .quantity(request.quantity())
                 .status(ReservationStatus.ACTIVE)
-                .expiresAt(request.getExpiresAt())
-                .reservedBy(request.getReservedBy())
-                .reference(request.getReference())
-                .notes(request.getNotes())
+                .expiresAt(request.expiresAt())
+                .reservedBy(request.reservedBy())
+                .reference(request.reference())
+                .notes(request.notes())
                 .product(product)
                 .build();
 
         // Increase reserved quantity
-        product.setReservedQuantity(product.getReservedQuantity() + request.getQuantity());
+        product.setReservedQuantity(product.getReservedQuantity() + request.quantity());
         productRepository.save(product);
 
         Reservation savedReservation = reservationRepository.save(reservation);
         log.info("Successfully created reservation with ID: {} - Reserved {} units",
-                savedReservation.getId(), request.getQuantity());
+                savedReservation.getId(), request.quantity());
 
         return ReservationResponse.fromEntity(savedReservation);
     }

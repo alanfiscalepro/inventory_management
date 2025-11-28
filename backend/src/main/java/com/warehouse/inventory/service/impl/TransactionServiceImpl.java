@@ -32,32 +32,32 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionResponse createTransaction(CreateTransactionRequest request) {
         log.info("Creating transaction of type {} for product ID: {} with quantity: {}",
-                request.getType(), request.getProductId(), request.getQuantity());
+                request.type(), request.productId(), request.quantity());
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + request.getProductId()));
+        Product product = productRepository.findById(request.productId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + request.productId()));
 
         int quantityBefore = product.getQuantity();
         int quantityAfter;
 
         // Calculate new quantity based on transaction type
-        switch (request.getType()) {
+        switch (request.type()) {
             case INBOUND:
             case RETURN:
-                quantityAfter = quantityBefore + request.getQuantity();
+                quantityAfter = quantityBefore + request.quantity();
                 break;
             case OUTBOUND:
             case DAMAGED:
-                if (product.getAvailableQuantity() < request.getQuantity()) {
+                if (product.getAvailableQuantity() < request.quantity()) {
                     throw new InsufficientStockException(
                             String.format("Insufficient stock for product '%s' (SKU: %s). Available: %d, Required: %d",
-                                    product.getName(), product.getSku(), product.getAvailableQuantity(), request.getQuantity()));
+                                    product.getName(), product.getSku(), product.getAvailableQuantity(), request.quantity()));
                 }
-                quantityAfter = quantityBefore - request.getQuantity();
+                quantityAfter = quantityBefore - request.quantity();
                 break;
             case ADJUSTMENT:
                 // For adjustments, quantity can be positive or negative
-                int quantityChange = request.getQuantity();
+                int quantityChange = request.quantity();
                 quantityAfter = quantityBefore + quantityChange;
                 if (quantityAfter < product.getReservedQuantity()) {
                     throw new InsufficientStockException(
@@ -66,15 +66,15 @@ public class TransactionServiceImpl implements TransactionService {
                 }
                 break;
             case TRANSFER:
-                if (product.getAvailableQuantity() < request.getQuantity()) {
+                if (product.getAvailableQuantity() < request.quantity()) {
                     throw new InsufficientStockException(
                             String.format("Insufficient stock for transfer. Available: %d, Required: %d",
-                                    product.getAvailableQuantity(), request.getQuantity()));
+                                    product.getAvailableQuantity(), request.quantity()));
                 }
-                quantityAfter = quantityBefore - request.getQuantity();
+                quantityAfter = quantityBefore - request.quantity();
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported transaction type: " + request.getType());
+                throw new IllegalArgumentException("Unsupported transaction type: " + request.type());
         }
 
         // Ensure quantity doesn't go negative
@@ -84,12 +84,12 @@ public class TransactionServiceImpl implements TransactionService {
 
         // Create transaction
         Transaction transaction = Transaction.builder()
-                .type(request.getType())
-                .quantity(request.getQuantity())
+                .type(request.type())
+                .quantity(request.quantity())
                 .quantityBefore(quantityBefore)
                 .quantityAfter(quantityAfter)
-                .notes(request.getNotes())
-                .reference(request.getReference())
+                .notes(request.notes())
+                .reference(request.reference())
                 .product(product)
                 .build();
 
@@ -196,12 +196,13 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponse createInboundTransaction(Long productId, int quantity, String notes, String reference) {
         log.info("Creating inbound transaction for product {} with quantity: {}", productId, quantity);
 
-        CreateTransactionRequest request = new CreateTransactionRequest();
-        request.setProductId(productId);
-        request.setType(TransactionType.INBOUND);
-        request.setQuantity(quantity);
-        request.setNotes(notes);
-        request.setReference(reference);
+        CreateTransactionRequest request = new CreateTransactionRequest(
+                TransactionType.INBOUND,
+                quantity,
+                notes,
+                reference,
+                productId
+        );
 
         return createTransaction(request);
     }
@@ -210,12 +211,13 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponse createOutboundTransaction(Long productId, int quantity, String notes, String reference) {
         log.info("Creating outbound transaction for product {} with quantity: {}", productId, quantity);
 
-        CreateTransactionRequest request = new CreateTransactionRequest();
-        request.setProductId(productId);
-        request.setType(TransactionType.OUTBOUND);
-        request.setQuantity(quantity);
-        request.setNotes(notes);
-        request.setReference(reference);
+        CreateTransactionRequest request = new CreateTransactionRequest(
+                TransactionType.OUTBOUND,
+                quantity,
+                notes,
+                reference,
+                productId
+        );
 
         return createTransaction(request);
     }
@@ -224,12 +226,13 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponse createAdjustmentTransaction(Long productId, int quantityChange, String notes, String reference) {
         log.info("Creating adjustment transaction for product {} with quantity change: {}", productId, quantityChange);
 
-        CreateTransactionRequest request = new CreateTransactionRequest();
-        request.setProductId(productId);
-        request.setType(TransactionType.ADJUSTMENT);
-        request.setQuantity(quantityChange);
-        request.setNotes(notes);
-        request.setReference(reference);
+        CreateTransactionRequest request = new CreateTransactionRequest(
+                TransactionType.ADJUSTMENT,
+                quantityChange,
+                notes,
+                reference,
+                productId
+        );
 
         return createTransaction(request);
     }

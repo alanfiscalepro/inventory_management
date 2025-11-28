@@ -2,6 +2,7 @@ package com.warehouse.inventory.controller;
 
 import com.warehouse.inventory.dto.request.CreateReservationRequest;
 import com.warehouse.inventory.dto.response.ReservationResponse;
+import com.warehouse.inventory.dto.response.TransactionResponse;
 import com.warehouse.inventory.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,21 +45,15 @@ public class ReservationController {
         return ResponseEntity.ok(reservations);
     }
 
-    @PostMapping("/{id}/confirm")
-    public ResponseEntity<ReservationResponse> confirmReservation(@PathVariable Long id) {
-        ReservationResponse response = reservationService.confirmReservation(id);
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping("/{id}/cancel")
     public ResponseEntity<ReservationResponse> cancelReservation(@PathVariable Long id) {
-        ReservationResponse response = reservationService.cancelReservation(id);
+        ReservationResponse response = reservationService.cancelReservation(id, null);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}/fulfill")
-    public ResponseEntity<ReservationResponse> fulfillReservation(@PathVariable Long id) {
-        ReservationResponse response = reservationService.fulfillReservation(id);
+    public ResponseEntity<TransactionResponse> fulfillReservation(@PathVariable Long id) {
+        TransactionResponse response = reservationService.fulfillReservation(id, null);
         return ResponseEntity.ok(response);
     }
 }

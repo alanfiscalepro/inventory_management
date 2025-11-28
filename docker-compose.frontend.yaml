@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: '${NEXT_PUBLIC_API_URL:-http://localhost:8080}'
+    container_name: inventory-manager-frontend
+    restart: unless-stopped
+    environment:
+      # Next.js Configuration
+      NEXT_PUBLIC_API_URL: '${NEXT_PUBLIC_API_URL:-http://localhost:8080}'
+      NODE_ENV: '${NODE_ENV:-production}'
+
+      # Timezone
+      TZ: '${TZ:-UTC}'
+
+    ports:
+      - '${FRONTEND_PORT:-3000}:3000'
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    networks:
+      - inventory-network
+
+networks:
+  inventory-network:
+    driver: bridge

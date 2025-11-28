@@ -66,7 +66,7 @@ export interface Transaction {
   productId: number;
   productSku: string;
   productName: string;
-  type: 'IN' | 'OUT' | 'ADJUSTMENT';
+  type: 'INBOUND' | 'OUTBOUND' | 'ADJUSTMENT' | 'RETURN' | 'TRANSFER' | 'DAMAGED' | 'RESERVATION';
   quantity: number;
   reference?: string;
   notes?: string;
@@ -80,8 +80,12 @@ export interface Reservation {
   productName: string;
   quantity: number;
   status: 'PENDING' | 'CONFIRMED' | 'FULFILLED' | 'CANCELLED';
-  customerName?: string;
+  expiresAt: string;
+  reservedBy?: string;
+  reference?: string;
   notes?: string;
+  expired: boolean;
+  active: boolean;
   createdAt: string;
   updatedAt: string;
 }

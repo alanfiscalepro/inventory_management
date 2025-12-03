@@ -16,7 +16,6 @@ export default function WarehousesPage() {
     name: '',
     location: '',
     description: '',
-    capacity: '',
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,7 +26,6 @@ export default function WarehousesPage() {
     name: '',
     location: '',
     description: '',
-    capacity: '',
   });
 
   useEffect(() => {
@@ -66,13 +64,6 @@ export default function WarehousesPage() {
     if (!formData.name.trim()) errors.name = 'Name is required';
     if (!formData.location.trim()) errors.location = 'Location is required';
 
-    if (formData.capacity) {
-      const capacity = parseInt(formData.capacity);
-      if (isNaN(capacity) || capacity < 0) {
-        errors.capacity = 'Valid capacity is required';
-      }
-    }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -88,7 +79,6 @@ export default function WarehousesPage() {
         name: formData.name.trim(),
         location: formData.location.trim(),
         description: formData.description.trim() || undefined,
-        capacity: formData.capacity ? parseInt(formData.capacity) : undefined,
         active: true,
       };
 
@@ -98,7 +88,6 @@ export default function WarehousesPage() {
         name: '',
         location: '',
         description: '',
-        capacity: '',
       });
       setShowAddModal(false);
       await loadData();
@@ -120,7 +109,6 @@ export default function WarehousesPage() {
       name: warehouse.name,
       location: warehouse.location,
       description: warehouse.description || '',
-      capacity: warehouse.capacity?.toString() || '',
     });
     setFormErrors({});
     setShowEditModal(true);
@@ -140,13 +128,6 @@ export default function WarehousesPage() {
     if (!editFormData.name.trim()) errors.name = 'Name is required';
     if (!editFormData.location.trim()) errors.location = 'Location is required';
 
-    if (editFormData.capacity) {
-      const capacity = parseInt(editFormData.capacity);
-      if (isNaN(capacity) || capacity < 0) {
-        errors.capacity = 'Valid capacity is required';
-      }
-    }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -162,7 +143,6 @@ export default function WarehousesPage() {
         name: editFormData.name.trim(),
         location: editFormData.location.trim(),
         description: editFormData.description.trim() || undefined,
-        capacity: editFormData.capacity ? parseInt(editFormData.capacity) : undefined,
       };
 
       await warehouseApi.update(selectedWarehouse.id, warehouseData);
@@ -288,10 +268,6 @@ export default function WarehousesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {filteredWarehouses.map((warehouse, index) => {
-              const occupancyPercentage = warehouse.capacity && warehouse.currentOccupancy
-                ? (warehouse.currentOccupancy / warehouse.capacity) * 100
-                : 0;
-
               return (
                 <motion.div
                   key={warehouse.id}
@@ -326,34 +302,20 @@ export default function WarehousesPage() {
                     </p>
                   )}
 
-                  {/* Capacity Info */}
-                  {warehouse.capacity && (
-                    <div className="space-y-4 mb-6">
-                      <div className="flex items-center justify-between text-base">
-                        <span className="text-[var(--text-secondary)] font-medium">Capacity</span>
-                        <span className="text-[var(--text-primary)] font-bold font-mono">
-                          {warehouse.currentOccupancy || 0} / {warehouse.capacity}
+                  {/* Product Count */}
+                  <div className="mb-6">
+                    <div className="flex items-center gap-4 text-base bg-[var(--bg-tertiary)] rounded-lg p-6 border border-[var(--border-color)]">
+                      <svg className="w-8 h-8 text-[var(--accent-amber)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                      <div className="flex-1">
+                        <span className="text-[var(--text-secondary)] text-sm font-medium block">Products Stored</span>
+                        <span className="text-[var(--text-primary)] text-3xl font-bold font-mono">
+                          {warehouse.productCount || 0}
                         </span>
                       </div>
-                      {/* Progress Bar */}
-                      <div className="w-full h-3 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${Math.min(occupancyPercentage, 100)}%`,
-                            backgroundColor: occupancyPercentage >= 90
-                              ? 'var(--error)'
-                              : occupancyPercentage >= 70
-                              ? 'var(--warning)'
-                              : 'var(--accent-cyan)'
-                          }}
-                        />
-                      </div>
-                      <p className="text-sm text-[var(--text-tertiary)] font-mono">
-                        {occupancyPercentage.toFixed(1)}% utilized
-                      </p>
                     </div>
-                  )}
+                  </div>
 
                   {/* Status Badge */}
                   <div className="mb-6">
@@ -474,28 +436,6 @@ export default function WarehousesPage() {
                 />
               </div>
 
-              {/* Capacity */}
-              <div>
-                <label htmlFor="capacity" className="block text-[var(--text-primary)] font-semibold mb-3 text-base">
-                  Capacity
-                </label>
-                <input
-                  type="number"
-                  id="capacity"
-                  name="capacity"
-                  value={formData.capacity}
-                  onChange={handleInputChange}
-                  min="0"
-                  className={`w-full px-6 py-4 bg-[var(--bg-tertiary)] border ${
-                    formErrors.capacity ? 'border-[var(--error)]' : 'border-[var(--border-color)]'
-                  } rounded-lg text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:border-[var(--accent-cyan)] focus:outline-none transition-colors text-base`}
-                  placeholder="Maximum storage capacity"
-                />
-                {formErrors.capacity && (
-                  <p className="mt-2 text-[var(--error)] text-sm">{formErrors.capacity}</p>
-                )}
-              </div>
-
               {/* Form Actions */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-[var(--border-color)]">
                 <button
@@ -567,20 +507,12 @@ export default function WarehousesPage() {
                 </div>
               )}
 
-              {/* Capacity Information */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="bg-[var(--bg-tertiary)] rounded-lg p-6 border border-[var(--border-color)]">
-                  <h3 className="text-[var(--text-secondary)] font-semibold mb-2 text-sm">Capacity</h3>
-                  <p className="text-3xl font-bold text-[var(--text-primary)] font-mono">
-                    {selectedWarehouse.capacity?.toLocaleString() || 'N/A'}
-                  </p>
-                </div>
-                <div className="bg-[var(--bg-tertiary)] rounded-lg p-6 border border-[var(--border-color)]">
-                  <h3 className="text-[var(--text-secondary)] font-semibold mb-2 text-sm">Current Occupancy</h3>
-                  <p className="text-3xl font-bold text-[var(--text-primary)] font-mono">
-                    {selectedWarehouse.currentOccupancy?.toLocaleString() || '0'}
-                  </p>
-                </div>
+              {/* Product Count */}
+              <div className="bg-[var(--bg-tertiary)] rounded-lg p-6 border border-[var(--border-color)]">
+                <h3 className="text-[var(--text-secondary)] font-semibold mb-2 text-sm">Products Stored</h3>
+                <p className="text-3xl font-bold text-[var(--text-primary)] font-mono">
+                  {selectedWarehouse.productCount?.toLocaleString() || '0'}
+                </p>
               </div>
 
               {/* Status and Dates */}
@@ -715,28 +647,6 @@ export default function WarehousesPage() {
                   className="w-full px-6 py-4 bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:border-[var(--accent-cyan)] focus:outline-none transition-colors text-base resize-none"
                   placeholder="Warehouse description..."
                 />
-              </div>
-
-              {/* Capacity */}
-              <div>
-                <label htmlFor="edit-capacity" className="block text-[var(--text-primary)] font-semibold mb-3 text-base">
-                  Capacity
-                </label>
-                <input
-                  type="number"
-                  id="edit-capacity"
-                  name="capacity"
-                  value={editFormData.capacity}
-                  onChange={handleEditInputChange}
-                  min="0"
-                  className={`w-full px-6 py-4 bg-[var(--bg-tertiary)] border ${
-                    formErrors.capacity ? 'border-[var(--error)]' : 'border-[var(--border-color)]'
-                  } rounded-lg text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:border-[var(--accent-cyan)] focus:outline-none transition-colors text-base`}
-                  placeholder="Maximum storage capacity"
-                />
-                {formErrors.capacity && (
-                  <p className="mt-2 text-[var(--error)] text-sm">{formErrors.capacity}</p>
-                )}
               </div>
 
               {/* Form Actions */}

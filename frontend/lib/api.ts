@@ -36,9 +36,8 @@ export interface Warehouse {
   name: string;
   location: string;
   description?: string;
-  capacity?: number;
-  currentOccupancy?: number;
   active: boolean;
+  productCount?: number;
   createdAt: string;
   updatedAt: string;
 }

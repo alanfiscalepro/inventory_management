@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { productApi, warehouseApi, transactionApi, reservationApi, type Product, type Warehouse } from '@/lib/api';
-
+//еуые сщььуе
 export default function ProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
